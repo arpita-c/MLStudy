@@ -3,53 +3,35 @@ from appdata import AppData
 # import predictionio
 import sys
 
-def batch_import_task(app_data, all_info=False):
+def batch_import_task(app_data):
 
-  print "[Info] Importing users to PredictionIO..."
+  print "Importing users..."
   count = 0
   for k, v in app_data.get_users().iteritems():
     count += 1
-    if all_info:
-      print "[Info] Importing %s..." % v
-    else:
-      if (count % 32 == 0):
-        sys.stdout.write('\r[Info] %s' % count)
-        sys.stdout.flush()
+    if (count % 200 == 0):
+      print '%s' % count
 
-  sys.stdout.write('\r[Info] %s users were imported.\n' % count)
-  sys.stdout.flush()
+  print '%s users were imported.\n' % count
 
-  print "[Info] Importing items to PredictionIO..."
+  print "Importing items..."
   count = 0
   for k, v in app_data.get_items().iteritems():
     count += 1
-    if all_info:
-      print "[Info] Importing %s..." % v
-    else:
-      if (count % 32 == 0):
-        sys.stdout.write('\r[Info] %s' % count)
-        sys.stdout.flush()
+    if (count % 200 == 0):
+      print '%s' % count
 
-    itypes = ("movie",) + v.genres
+  print '%s items were imported.\n' % count
 
-  sys.stdout.write('\r[Info] %s items were imported.\n' % count)
-  sys.stdout.flush()
-
-  print "[Info] Importing rate actions to PredictionIO..."
+  print "Importing rate actions..."
   count = 0
   for v in app_data.get_rate_actions():
     count += 1
-    if all_info:
-      print "[Info] Importing %s..." % v
-    else:
-      if (count % 32 == 0):
-        sys.stdout.write('\r[Info] %s' % count)
-        sys.stdout.flush()
+    if (count % 10000 == 0):
+      print '%s' % count
 
-  sys.stdout.write('\r[Info] %s rate actions were imported.\n' % count)
-  sys.stdout.flush()
+  print '%s rate actions were imported.\n' % count
 
 if __name__ == '__main__':
-
   app_data = AppData()
   batch_import_task(app_data)
