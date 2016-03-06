@@ -56,10 +56,9 @@ if __name__ == '__main__':
 
   # print rec.topMatches(prefs, '99');
 
-  # prefs['99'] = {}
-  prefs['99']['Sunset Park (1996)'] = 5.0
-  print rec.getRecommendedItems(prefs, similarItems, '99')
-
+  prefs['vincent'] = {}
+  prefs['vincent']['Seven (Se7en) (1995)'] = 5.0
+  print rec.getRecommendedItems(prefs, similarItems, 'vincent')
 
   # vincent = {'HBirdcage, The (1996)': 5.0, 'Kull the Conqueror (1997)': 2.0}
   # prefs['vincent'] = vincent;
