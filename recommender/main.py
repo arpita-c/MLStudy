@@ -1,7 +1,8 @@
 # 
 from appdata import AppData
-import recommendations
+import recommendations as rec
 import sys
+import pickle
 
 def batch_import_task(app_data):
 
@@ -35,9 +36,35 @@ if __name__ == '__main__':
   # # batch_import_task(app_data)
   # for item in app_data.get_rate_actions():
   #   print item.uid, app_data.get_item(item.iid).name, item.rating
-  pref = recommendations.loadMovieLens('../data/movielens-100k')
-  rec = recommendations.getRecommendations(pref, '100')
-  # print rec
+  prefs = rec.loadMovieLens('../data/movielens-100k')
 
-  print pref['100']
-  print recommendations.topMatches(pref, '100');
+
+  try:
+    input = open('data.pkl', 'rb')
+    similarItems = pickle.load(input)
+    input.close()
+  except Exception, e:
+    similarItems = rec.calculateSimilarItems(prefs, 10)
+    output = open('data.pkl', 'wb')
+    pickle.dump(similarItems, output)
+    output.close();
+
+  # rec = rec.getRecommendations(prefs, '100')
+  # print rec
+  # print prefs['99']
+  # print rec.topMatches(prefs, '99');
+
+  # print rec.topMatches(prefs, '99');
+
+  # prefs['99'] = {}
+  prefs['99']['Sunset Park (1996)'] = 5.0
+  print rec.getRecommendedItems(prefs, similarItems, '99')
+
+
+  # vincent = {'HBirdcage, The (1996)': 5.0, 'Kull the Conqueror (1997)': 2.0}
+  # prefs['vincent'] = vincent;
+
+  # print rec.sim_distance(prefs, 'vincent', '100') 
+
+  # print rec.topMatches(prefs, 'vincent');
+

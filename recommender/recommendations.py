@@ -103,7 +103,7 @@ def transformPrefs(prefs):
 def calculateSimilarItems(prefs,n=10):
   # Create a dictionary of items showing which other items they
   # are most similar to.
-  result={}
+  similarItems={}
   # Invert the preference matrix to be item-centric
   itemPrefs=transformPrefs(prefs)
   c=0
@@ -112,11 +112,12 @@ def calculateSimilarItems(prefs,n=10):
     c+=1
     if c%100==0: print "%d / %d" % (c,len(itemPrefs))
     # Find the most similar items to this one
-    scores=topMatches(itemPrefs,item,n=n,similarity=sim_distance)
-    result[item]=scores
-  return result
+    scoreAndItem=topMatches(itemPrefs,item,n=n,similarity=sim_distance)
+    similarItems[item]=scoreAndItem
+  return similarItems
 
-def getRecommendedItems(prefs,itemMatch,user):
+def getRecommendedItems(prefs,similarItems,user):
+  # similarItems is result from calculateSimilarItems
   userRatings=prefs[user]
   scores={}
   totalSim={}
@@ -124,7 +125,7 @@ def getRecommendedItems(prefs,itemMatch,user):
   for (item,rating) in userRatings.items( ):
 
     # Loop over items similar to this one
-    for (similarity,item2) in itemMatch[item]:
+    for (similarity,item2) in similarItems[item]:
 
       # Ignore if this user has already rated this item
       if item2 in userRatings: continue
