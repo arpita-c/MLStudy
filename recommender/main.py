@@ -1,6 +1,6 @@
 # 
 from appdata import AppData
-# import predictionio
+import recommendations
 import sys
 
 def batch_import_task(app_data):
@@ -8,9 +8,7 @@ def batch_import_task(app_data):
   print "Importing users..."
   count = 0
   for k, v in app_data.get_users().iteritems():
-    count += 1
-    if (count % 200 == 0):
-      print '%s' % count
+    print v
 
   print '%s users were imported.\n' % count
 
@@ -33,5 +31,13 @@ def batch_import_task(app_data):
   print '%s rate actions were imported.\n' % count
 
 if __name__ == '__main__':
-  app_data = AppData()
-  batch_import_task(app_data)
+  # app_data = AppData()
+  # # batch_import_task(app_data)
+  # for item in app_data.get_rate_actions():
+  #   print item.uid, app_data.get_item(item.iid).name, item.rating
+  pref = recommendations.loadMovieLens('../data/movielens-100k')
+  rec = recommendations.getRecommendations(pref, '100')
+  # print rec
+
+  print pref['100']
+  print recommendations.topMatches(pref, '100');

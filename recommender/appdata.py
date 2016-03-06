@@ -15,12 +15,13 @@ RATE_ACTIONS_DELIMITER = "\t"
 
 
 class User:
-  def __init__(self, uid):
+  def __init__(self, uid, age):
     self.uid = uid
+    self.age = age
     self.rec = [] # recommendations, list of iid
 
   def __str__(self):
-    return "User[uid=%s,rec=%s]" % (self.uid, self.rec)
+    return "User[uid=%s,age=%s,rec=%s]" % (self.uid, self.age, self.rec)
 
 class Item:
   def __init__(self, iid, name, release_date, genres, year):
@@ -60,13 +61,13 @@ class AppData:
 
   def __init_users(self):
     """
-    uid|
+    uid|age
     """
     print "[Info] Initializing users..."
     f = open(self._users_file, 'r')
     for line in f:
       data = line.rstrip('\r\n').split(USERS_FILE_DELIMITER)
-      self.add_user(User(data[0]))
+      self.add_user(User(data[0], int(data[1])))
     f.close()
     print "[Info] %s users were initialized." % len(self._users)
 
@@ -103,14 +104,15 @@ class AppData:
         release_date = datetime.datetime.strptime(data[2], "%d-%b-%Y")
         (day, month, year) = data[2].split('-')
       except:
-        print "[Note] item %s %s doesn't have release date. Skip it." % (data[0], data[1])
-      else:
-        self.add_item(Item(
-          iid=data[0],
-          name=data[1],
-          release_date=release_date,
-          genres=genres,
-          year=year))
+        release_date = "unknown"
+        # print "[Note] item %s %s doesn't have release date. Skip it." % (data[0], data[1])
+      
+      self.add_item(Item(
+        iid=data[0],
+        name=data[1],
+        release_date=release_date,
+        genres=genres,
+        year=year))
     f.close()
     print "[Info] %s items were initialized." % len(self._items)
 
@@ -123,7 +125,7 @@ class AppData:
     for line in f:
       data = line.rstrip('\r\n').split(RATE_ACTIONS_DELIMITER)
       t = datetime.datetime.utcfromtimestamp(int(data[3])).isoformat()
-      self.add_rate_action(RateAction(data[0], data[1], data[2], t))
+      self.add_rate_action(RateAction(data[0], data[1], float(data[2]), t))
     f.close()
     print "[Info] %s rate actions were initialized." % len(self._rate_actions)
 
