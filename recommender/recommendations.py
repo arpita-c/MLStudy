@@ -60,7 +60,7 @@ def topMatches(prefs,person,n=5,similarity=sim_pearson):
 
 # Gets recommendations for a person by using a weighted average
 # of every other user's rankings
-def getRecommendations(prefs,person,similarity=sim_pearson):
+def getUserBasedRec(prefs,person,similarity=sim_pearson):
   totals={}
   simSums={}
   for other in prefs:
@@ -71,7 +71,7 @@ def getRecommendations(prefs,person,similarity=sim_pearson):
     # ignore scores of zero or lower
     if sim<=0: continue
     for item in prefs[other]:
-	    
+   
       # only score movies I haven't seen yet
       if item not in prefs[person] or prefs[person][item]==0:
         # Similarity * Score
@@ -88,7 +88,6 @@ def getRecommendations(prefs,person,similarity=sim_pearson):
   rankings.sort()
   rankings.reverse()
   return rankings
-
 def transformPrefs(prefs):
   result={}
   for person in prefs:
@@ -99,42 +98,67 @@ def transformPrefs(prefs):
       result[item][person]=prefs[person][item]
   return result
 
-
-def calculateSimilarItems(prefs,n=10):
+def calcNearestNeighbours(prefs,n=10):
   # Create a dictionary of items showing which other items they
   # are most similar to.
-  similarItems={}
-  # Invert the preference matrix to be item-centric
-  itemPrefs=transformPrefs(prefs)
+  neighbours={}
   c=0
-  for item in itemPrefs:
+  for item in prefs:
     # Status updates for large datasets
     c+=1
-    if c%100==0: print "%d / %d" % (c,len(itemPrefs))
+    if c%100==0: print "%d / %d" % (c,len(prefs))
     # Find the most similar items to this one
-    scoreAndItem=topMatches(itemPrefs,item,n=n,similarity=sim_distance)
-    similarItems[item]=scoreAndItem
-  return similarItems
+    scoreAndItem=topMatches(prefs,item,n=n,similarity=sim_distance)
+    neighbours[item]=scoreAndItem
+  return neighbours
 
-def getRecommendedItems(prefs,similarItems,user):
-  # similarItems is result from calculateSimilarItems
+'''
+TODO: merge into getItemBasedRec
+'''
+def getUserBasedRec(prefs, userNeighbours, user):
+  print "User based recommendendations for user", user
+  userRatings=prefs[user]
+  scores={}
+  totalSim={}
+
+  # Loop over usrs similar to this one
+  for (sim,user2) in userNeighbours[user]:
+    # Loop over items rated by other user
+    for (item,rating) in prefs[user2].items( ):  
+      # Ignore if this user has already rated this item
+      if item in userRatings: continue
+      # Similarity * Score
+      scores.setdefault(item,0)
+      scores[item]+=sim*rating
+      # Sum of similarities
+      totalSim.setdefault(item,0)
+      totalSim[item]+=sim
+
+  # Create the normalized list
+  rankings=[(total/totalSim[item],item) for item,total in scores.items()]
+
+  # Return the sorted list
+  rankings.sort()
+  rankings.reverse()
+  return rankings
+
+def getItemBasedRec(prefs,itemNeighbours,user):
+  print "Item based recommendendations for user", user
   userRatings=prefs[user]
   scores={}
   totalSim={}
   # Loop over items rated by this user
   for (item,rating) in userRatings.items( ):
-
     # Loop over items similar to this one
-    for (similarity,item2) in similarItems[item]:
-
+    for (sim,item2) in itemNeighbours[item]:
       # Ignore if this user has already rated this item
       if item2 in userRatings: continue
-      # Weighted sum of rating times similarity
+      # Weighted sum of rating times sim
       scores.setdefault(item2,0)
-      scores[item2]+=similarity*rating
+      scores[item2]+=sim*rating
       # Sum of all the similarities
       totalSim.setdefault(item2,0)
-      totalSim[item2]+=similarity
+      totalSim[item2]+=sim
 
   # Divide each total score by total weighting to get an average
   rankings=[(score/totalSim[item],item) for item,score in scores.items( )]
