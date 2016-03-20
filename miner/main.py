@@ -21,11 +21,11 @@ class MyVisitor(ast.NodeVisitor):
 for test in  eval_tests:
     node = ast.parse(test)
     print ast.dump(node)
-    MyVisitor().visit(node)
+    # MyVisitor().visit(node)
     print '\n'
 
 if __name__ == '__main__':
-	'''
+    '''
 2. Boolean operations. Many search engines support Boolean queries, which allow
 users to construct searches like "python OR perl." An OR search can work by
 doing the queries separately and combining the results, but what about "python
@@ -35,15 +35,20 @@ Boolean operations.
 words in the page must match the words in the query in the same order with no
 additional words in between. Create a new version of getrows that only returns
 results that are exact matches. (Hint: you can use subtraction in SQL to get the
-difference between the word locations.)	
-	'''
-	dbname = 'searchindex.db'
-	if False:
-		crawler = se.crawler(dbname)
-		crawler.createindextables()
-		pages = ['https://www.zhihu.com/']
-		crawler.crawl(pages, depth=3)
-	else:
-		searcher = se.searcher(dbname)
-		print searcher.getmatchrows('zhihu career')
+difference between the word locations.) 
+    '''
+    dbname = 'searchindex.db'
+    if True:
+        crawler = se.crawler(dbname)
+        crawler.createindextables()
+        pages = [
+            'https://www.zhihu.com/',
+            'https://github.com/'
+        ]
+        crawler.crawl(pages, depth=2)
+        crawler.calculatepagerank()
+    else:
+        searcher = se.searcher(dbname)
+        q = 'zhihu career'
+        print searcher.query(q)
 
