@@ -1,6 +1,7 @@
 import urllib2
 # from BeautifulSoup import *
 from bs4 import BeautifulSoup
+import re
 
 from urlparse import urljoin
 from sqlite3 import dbapi2 as sqlite
@@ -60,7 +61,7 @@ class crawler:
   # Extract the text from an HTML page (no tags)
   def gettextonly(self,soup):
     v=soup.string
-    if v==Null:   
+    if v==None:   
       c=soup.contents
       resulttext=''
       for t in c:
@@ -82,7 +83,7 @@ class crawler:
   
   # Add a link between two pages
   def addlinkref(self,urlFrom,urlTo,linkText):
-    words=self.separateWords(linkText)
+    words=self.separatewords(linkText)
     fromid=self.getentryid('urllist','url',urlFrom)
     toid=self.getentryid('urllist','url',urlTo)
     if fromid==toid: return
@@ -196,7 +197,7 @@ class searcher:
     for word in words:
       # Get the word ID
       wordrow=self.con.execute(
-      "select rowid from wordlist where word='%s'" % word).fetchone()
+      "select rowid from wordlist where word='%s'" % word.lower()).fetchone()
       if wordrow!=None:
         wordid=wordrow[0]
         wordids.append(wordid)
